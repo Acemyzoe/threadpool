@@ -95,7 +95,7 @@ namespace std
     private:
 #endif // !THREADPOOL_AUTO_GROW
        //添加指定数量的线程
-        void addThread(unsigned short size)
+        void addThread(size_t size)
         {
             for (; _workers.size() < THREADPOOL_MAX_NUM && size > 0; --size) //增加线程数量,但不超过 预定义数量 THREADPOOL_MAX_NUM
             {
