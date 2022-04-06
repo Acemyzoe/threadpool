@@ -19,7 +19,8 @@
 #include <functional>         // std::function 函数对象
 #include <stdexcept>          // std::runtime_error   标准异常
 
-class ThreadPool // 线程池类
+#define MAX_THREADS 100 //最大线程数量
+class ThreadPool        // 线程池类
 {
 public:
     ThreadPool(size_t); // 构造函数，初始化线程池
@@ -44,6 +45,8 @@ private:
 inline ThreadPool::ThreadPool(size_t threads)
     : stop(false) // 初始化线程池
 {
+    if (threads > MAX_THREADS)
+        throw std::exception();
     for (size_t i = 0; i < threads; ++i)
         workers.emplace_back(
             [this]
