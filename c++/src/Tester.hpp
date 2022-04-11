@@ -23,7 +23,7 @@
 /** Fail the test with error message msg */
 #define TEST_FAIL(msg) testFail((msg), __FILE__, __LINE__);
 
-void test(bool a, const char* exp, const char* file, int line)
+void test(bool a, const char *exp, const char *file, int line)
 {
     if (!a)
     {
@@ -32,7 +32,8 @@ void test(bool a, const char* exp, const char* file, int line)
     }
 }
 
-template <class C> void testEquals(C a, C b, const char* file, int line)
+template <class C>
+void testEquals(C a, C b, const char *file, int line)
 {
     if (a != b)
     {
@@ -41,7 +42,8 @@ template <class C> void testEquals(C a, C b, const char* file, int line)
     }
 }
 
-template <class C> void testNotEquals(C a, C b, const char* file, int line)
+template <class C>
+void testNotEquals(C a, C b, const char *file, int line)
 {
     if (a == b)
     {
@@ -50,7 +52,8 @@ template <class C> void testNotEquals(C a, C b, const char* file, int line)
     }
 }
 
-template <class C> void testLessThan(C a, C b, const char* file, int line)
+template <class C>
+void testLessThan(C a, C b, const char *file, int line)
 {
     if (a >= b)
     {
@@ -59,7 +62,7 @@ template <class C> void testLessThan(C a, C b, const char* file, int line)
     }
 }
 
-void testFail(const char* msg, const char* file, int line)
+void testFail(const char *msg, const char *file, int line)
 {
     std::cout << file << ":" << line << ": TEST FAILED: " << msg << std::endl;
     exit(1);
@@ -78,8 +81,8 @@ public:
      *
      * @param name Name for the Tester instance. Will be printed when running tests.
      */
-    Tester(const std::string& name)
-      : name_(name), tests_()
+    Tester(const std::string &name)
+        : name_(name), tests_()
     {
     }
 
@@ -89,7 +92,7 @@ public:
      * @param testFunc Function containing the test.
      * @param testDesc Description for the test. Will be printed when running the test.
      */
-    void addTest(const std::function<void()>& testFunc, const std::string& testDesc)
+    void addTest(const std::function<void()> &testFunc, const std::string &testDesc)
     {
         tests_.push_back(std::make_pair(testFunc, testDesc));
     }
@@ -100,9 +103,9 @@ public:
     void runTests() const
     {
         std::cout << name_ << ": Running " << tests_.size() << " tests" << std::endl;
-        for (auto& test : tests_)
+        for (auto &test : tests_)
         {
-            std::cout << test.second << "... ";
+            std::cout << test.second << "..." << std::endl;
             test.first();
             std::cout << "OK!" << std::endl;
         }
