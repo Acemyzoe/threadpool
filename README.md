@@ -1,2 +1,2 @@
 # threadpool
-ThreadPool
+Mainly includes thread pools built on C++
