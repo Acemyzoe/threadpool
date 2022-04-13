@@ -1,13 +1,14 @@
-#include "CThreadPool.h"
-#include "CMsgQueue.h"
-
 #include <iostream>
-#include "Tester.hpp"
 #include <functional>
 #include <string>
 #include <thread>
 #include <type_traits>
 #include <vector>
+
+#include "Tester.hpp"
+#include "CAsyncQueue.h"
+#include "CMsgQueue.h"
+#include "CThreadPool.h"
 using namespace std;
 
 //////测试消息队列//////
@@ -69,6 +70,7 @@ void test_thread_pool()
 
     // 测试全局函数
     pool.Commit(Func1, 100, "测试全局函数");
+    pool.Commit(Func1, 101, "测试全局函数");
 
     // 测试成员函数
     PrintTest p;
@@ -78,8 +80,20 @@ void test_thread_pool()
     auto res = pool.Commit(Func2, 300, "测试同步获取结果");
     auto val = res.get();
     std::cout << "获取的结果:" << val << std::endl;
+}
 
-    // std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+//////测试异步消息队列//////
+void test_async_queue()
+{
+    CAsyncQueue<std::string, bool> sqlQueue;
+    sqlQueue.Start(1, [](const std::string &sql)
+                   {
+		std::cout << sql << std::endl;
+		return true; });
+
+    sqlQueue.Push("select * from db;");
+    auto ret = sqlQueue.Push("delete from db;");
+    TEST_EQUALS(ret.get(), true);
 }
 
 int main()
@@ -87,5 +101,6 @@ int main()
     Tester tester("Test");
     tester.addTest(test_msg_queue, "test_msg_queue");
     tester.addTest(test_thread_pool, "test_thread_pool");
+    tester.addTest(test_async_queue, "test_async_queue");
     tester.runTests();
 }

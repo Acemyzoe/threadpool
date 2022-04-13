@@ -1,56 +1,5 @@
 #pragma once
-#include <iostream>
-#include <queue>
-#include <string>
-#include <vector>
-#include <atomic>
-#include <thread>
-#include <mutex>
-#include <condition_variable>
-#include <chrono>
-#define MAX_QUEUE_CAPACITY 100
-
-// Queue class
-class QueueObject
-{
-public:
-    QueueObject() : m_bStop(false), m_nCapacity(MAX_QUEUE_CAPACITY)
-    {
-    }
-
-    virtual ~QueueObject()
-    {
-    }
-
-    void Stop()
-    {
-        m_bStop.store(true);
-        m_condPop.notify_all(); // 唤醒所有线程执行
-    }
-
-    //设置最大容量
-    void SetMaxCapacity(int nMax)
-    {
-        m_nCapacity = nMax;
-    }
-
-    //获取队列任务数量
-    virtual size_t GetTaskNum() = 0;
-
-    bool IsStop()
-    {
-        return m_bStop;
-    }
-
-protected:
-    int m_nCapacity = 0;                    //队列最大容量
-    std::condition_variable_any m_condPush; //写入条件量
-    std::condition_variable_any m_condPop;  //读取条件量
-    std::mutex m_mu;                        //互斥锁
-
-    // 是否关闭提交
-    std::atomic<bool> m_bStop;
-};
+#include "Thread.h"
 
 // msg queue
 template <typename T, typename... ARGS>
