@@ -26,9 +26,66 @@ void test_msg_queue()
     std::cout << val << "   " << num1 << "  " << num2 << std::endl;
 }
 
+void Func1(int i, const std::string &msg)
+{
+    std::cout << i << "-->" << msg << std::endl;
+}
+
+int Func2(int i, const std::string &msg)
+{
+    std::cout << i << "-->" << msg << std::endl;
+    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    return i;
+}
+
+class PrintTest
+{
+public:
+    void Func1(int i, const std::string &msg)
+    {
+        std::cout << i << "-->" << msg << std::endl;
+    }
+
+    void Func2(int i)
+    {
+        std::cout << i << "-->"
+                  << "测试成员函数" << std::endl;
+    }
+};
+
+//////测试线程池//////
+void test_thread_pool()
+{
+    CThreadPool pool;
+    pool.Start(2);
+    // 测试lambda表达式
+    pool.Commit([]
+                { std::cout << "测试lambda表达式" << std::endl; });
+    // 测试带参数的lambda表达式
+    pool.Commit([](int val)
+                { std::cout << "测试带参数的lambda表达式"
+                            << "-->" << val << std::endl; },
+                999);
+
+    // 测试全局函数
+    pool.Commit(Func1, 100, "测试全局函数");
+
+    // 测试成员函数
+    PrintTest p;
+    pool.Commit(std::mem_fn(&PrintTest::Func1), &p, 200, "测试成员函数");
+
+    // 测试同步获取结果
+    auto res = pool.Commit(Func2, 300, "测试同步获取结果");
+    auto val = res.get();
+    std::cout << "获取的结果:" << val << std::endl;
+
+    // std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+}
+
 int main()
 {
     Tester tester("Test");
     tester.addTest(test_msg_queue, "test_msg_queue");
+    tester.addTest(test_thread_pool, "test_thread_pool");
     tester.runTests();
 }
