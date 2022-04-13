@@ -1,3 +1,4 @@
+#pragma once
 #include "CMsgQueue.h"
 #include <functional>
 #include <future>
