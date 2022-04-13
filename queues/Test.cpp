@@ -86,14 +86,20 @@ void test_thread_pool()
 void test_async_queue()
 {
     CAsyncQueue<std::string, bool> sqlQueue;
-    sqlQueue.Start(1, [](const std::string &sql)
+    sqlQueue.Start(2, [](const std::string &sql)
                    {
 		std::cout << sql << std::endl;
+        std::cout << std::this_thread::get_id() << std::endl;
+        std::this_thread::sleep_for(std::chrono::seconds(3));
 		return true; });
 
     sqlQueue.Push("select * from db;");
     auto ret = sqlQueue.Push("delete from db;");
     TEST_EQUALS(ret.get(), true);
+
+    sqlQueue.Push("select * from db2;");
+    auto ret2 = sqlQueue.Push("delete from db2;");
+    TEST_EQUALS(ret2.get(), true);
 }
 
 int main()

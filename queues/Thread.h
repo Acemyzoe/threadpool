@@ -57,6 +57,7 @@ class ThreadObject : public QueueObject
 {
 public:
     using QueueObject::QueueObject;
+    ThreadObject() {}
     ~ThreadObject()
     {
         Stop();
