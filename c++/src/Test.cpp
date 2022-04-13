@@ -105,6 +105,7 @@ void testThreadpool5()
     A a;
     future<int> result = pool.enqueue(a.Afun, 22);
     future<string> result2 = pool.enqueue(a.Bfun, 33, "bfun", 2233);
+    cout << result.get() << result2.get() << endl;
 }
 
 int main()
