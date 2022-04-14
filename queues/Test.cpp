@@ -42,12 +42,12 @@ int Func2(int i, const std::string &msg)
 class PrintTest
 {
 public:
-    void Func1(int i, const std::string &msg)
+    void CFunc1(int i, const std::string &msg)
     {
         std::cout << i << "-->" << msg << std::endl;
     }
 
-    void Func2(int i)
+    void CFunc2(int i)
     {
         std::cout << i << "-->"
                   << "测试成员函数" << std::endl;
@@ -74,12 +74,17 @@ void test_thread_pool()
 
     // 测试成员函数
     PrintTest p;
-    pool.Commit(std::mem_fn(&PrintTest::Func1), &p, 200, "测试成员函数");
+    pool.Commit(std::mem_fn(&PrintTest::CFunc1), &p, 200, "测试成员函数");
+    pool.Commit(std::mem_fn(&PrintTest::CFunc2), &p, 201);
 
     // 测试同步获取结果
     auto res = pool.Commit(Func2, 300, "测试同步获取结果");
     auto val = res.get();
     std::cout << "获取的结果:" << val << std::endl;
+    auto res2 = pool.Commit([](int val)
+                            { return val + 1; },
+                            val);
+    std::cout << "获取的结果:" << res2.get() << std::endl;
 }
 
 //////测试异步消息队列//////
@@ -102,11 +107,34 @@ void test_async_queue()
     TEST_EQUALS(ret2.get(), true);
 }
 
+//////测试线程池+消息队列//////
+void test_thread_pool_msg_queue()
+{
+    CThreadPool pool;
+    pool.Start(2);
+    CMsgQueue<std::string, int, int> mq;
+    pool.Commit([&mq]
+                {mq.Push("test", 10, 20); 
+                std::this_thread::sleep_for(std::chrono::seconds(5)); 
+                std::string val;
+                int num1, num2;
+                auto res = mq.Pop(val, num1, num2);
+                std::cout << val << "   " << num1 << "  " << num2 << std::endl; });
+    pool.Commit([&mq]
+                { mq.Push("test2", 100, 200); });
+
+    std::string val;
+    int num1, num2;
+    auto res = mq.Pop(val, num1, num2);
+    std::cout << val << "-" << num1 << "-" << num2 << std::endl;
+}
+
 int main()
 {
     Tester tester("Test");
-    tester.addTest(test_msg_queue, "test_msg_queue");
-    tester.addTest(test_thread_pool, "test_thread_pool");
-    tester.addTest(test_async_queue, "test_async_queue");
+    // tester.addTest(test_msg_queue, "test_msg_queue");
+    // tester.addTest(test_thread_pool, "test_thread_pool");
+    // tester.addTest(test_async_queue, "test_async_queue");
+    tester.addTest(test_thread_pool_msg_queue, "test_thread_pool_msg_queue");
     tester.runTests();
 }
