@@ -8,41 +8,39 @@
 #include <vector>
 #include "ThreadPool.h"
 using namespace std;
-// Test that MsgUIDs generated in two different threads simultaneously are unique
-void testMsgUID()
+void testMsgOrder()
 {
     const int N = 1000;
-    std::vector<MsgUID> uids1, uids2;
+    Queue queue;
 
-    auto createMsgs = [](int count, std::vector<MsgUID> &uids)
+    auto sender = [](int count, Queue &q)
     {
         for (int i = 0; i < count; ++i)
-            uids.push_back(Msg(1).getUniqueId());
+        {
+            q.put(Msg(i));
+            // std::cout << "put " << i << std::endl;
+        }
     };
 
-    // std::thread t1(createMsgs, N, std::ref(uids1));
-    // std::thread t2(createMsgs, N, std::ref(uids2));
-    // t1.join();
-    // t2.join();
-    ThreadPool pool(4);
-    pool.enqueue(createMsgs, N, std::ref(uids1));
-    pool.enqueue(createMsgs, N, std::ref(uids2));
+    auto receiver = [](int count, Queue &q)
+    {
+        for (int i = 0; i < count; ++i)
+        {
+            auto m = q.get();
+            TEST_EQUALS(m->getMsgId(), i);
+            std::cout << "get " << m->getMsgId() << std::endl;
+        }
+    };
 
-    Queue q;
-    q.put(DataMsg<std::string>(42, "foo"));
-    auto m = q.get();
-    auto &dm = dynamic_cast<DataMsg<std::string> &>(*m);
-    TEST_EQUALS(dm.getMsgId(), 42);
-    TEST_EQUALS(dm.getPayload(), std::string("foo"));
-    // Test modifying the payload data
-    dm.getPayload() += "bar";
-    TEST_EQUALS(dm.getPayload(), std::string("foobar"));
+    ThreadPool pool(4);
+    pool.enqueue(sender, N, std::ref(queue));
+    pool.enqueue(receiver, N, std::ref(queue));
 }
 
 int main()
 {
 
     Tester tester("Test PolyM");
-    tester.addTest(testMsgUID, "Test MsgUID generation");
+    tester.addTest(testMsgOrder, "testMsgOrder");
     tester.runTests();
 }
