@@ -134,48 +134,33 @@ void test_thread_pool_msg_queue()
 void testMsgOrder()
 {
     CMsgQueue<std::string, int, int> mq;
-    ThreadPool pool(4);
-    std::cout << pool.idlCount() << pool.thrCount() << std::endl;
+    ThreadPool pool(2);
     int count = 100;
     pool.enqueue([&mq](int count)
-                 {    for (int i = 0; i < count; i++)
+                 {   std::cout<< this_thread::get_id() << std::endl; 
+                     for (int i = 0; i < count; i++)
                         {
                             mq.Push("test", i, i);
                             // std::cout << i << std::endl;
                         } },
                  count);
-    pool.enqueue([&mq](int count)
+
+    pool.enqueue([&mq, &pool](int count)
                  {std::string val;
                 int num1, num2;
+                std::cout<< this_thread::get_id() << std::endl; 
+                std::cout << pool.idlCount() << pool.thrCount() << std::endl;
+
                 for (int i = 0; i < count; i++)
                 {
                     auto res = mq.Pop(val, num1, num2);
                     //TODO：count太大，内存溢出
                     // std::cout << val << "-" << num1 << "-" << num2 << std::endl;
-                    // TEST_EQUALS(val, std::string("test"));
-                    // TEST_EQUALS(num1, i);
-                    // TEST_EQUALS(num2, i);
+                    TEST_EQUALS(val, std::string("test"));
+                    TEST_EQUALS(num1, i);
+                    TEST_EQUALS(num2, i);
                 } },
                  count);
-}
-
-void testMsgOrder2()
-{
-    CMsgQueue<std::string, int, int> mq;
-    int count = 100;
-    for (int i = 0; i < count; i++)
-    {
-        mq.Push("test", i, i);
-    }
-    std::string val;
-    int num1, num2;
-    for (int i = 0; i < count; i++)
-    {
-        auto res = mq.Pop(val, num1, num2);
-        TEST_EQUALS(val, std::string("test"));
-        TEST_EQUALS(num1, i);
-        TEST_EQUALS(num2, i);
-    }
 }
 
 int main()
@@ -185,6 +170,6 @@ int main()
     // tester.addTest(test_thread_pool, "test_thread_pool");
     // tester.addTest(test_async_queue, "test_async_queue");
     // tester.addTest(test_thread_pool_msg_queue, "test_thread_pool_msg_queue");
-    tester.addTest(testMsgOrder2, "testMsgOrder");
+    tester.addTest(testMsgOrder, "testMsgOrder");
     tester.runTests();
 }
