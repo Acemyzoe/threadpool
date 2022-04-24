@@ -1,0 +1,2 @@
+/usr/bin/ar qc libexecq.a  CMakeFiles/execq.dir/src/execq.cpp.o CMakeFiles/execq.dir/src/ExecutionPool.cpp.o CMakeFiles/execq.dir/src/ExecutionStream.cpp.o CMakeFiles/execq.dir/src/ThreadWorker.cpp.o CMakeFiles/execq.dir/src/TaskProviderList.cpp.o CMakeFiles/execq.dir/src/CancelTokenProvider.cpp.o
+/usr/bin/ranlib libexecq.a
