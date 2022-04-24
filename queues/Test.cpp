@@ -87,11 +87,11 @@ void test_thread_pool()
     std::cout << "获取的结果:" << res2.get() << std::endl;
 }
 
-//////测试异步消息队列//////
+//////测试异步队列//////
 void test_async_queue()
 {
     CAsyncQueue<std::string, bool> sqlQueue;
-    sqlQueue.Start(2, [](const std::string &sql)
+    sqlQueue.Start(4, [](const std::string &sql)
                    {
 		std::cout << sql << std::endl;
         std::cout << std::this_thread::get_id() << std::endl;
@@ -113,23 +113,17 @@ void test_thread_pool_msg_queue()
     CThreadPool pool;
     pool.Start(2);
     CMsgQueue<std::string, int, int> mq;
+
     pool.Commit([&mq]
-                {mq.Push("test", 10, 20); 
-                std::this_thread::sleep_for(std::chrono::seconds(5)); 
-                std::string val;
+                {std::string val;
                 int num1, num2;
                 auto res = mq.Pop(val, num1, num2);
                 std::cout << val << "   " << num1 << "  " << num2 << std::endl; });
     pool.Commit([&mq]
                 { mq.Push("test2", 100, 200); });
-
-    std::string val;
-    int num1, num2;
-    auto res = mq.Pop(val, num1, num2);
-    std::cout << val << "-" << num1 << "-" << num2 << std::endl;
 }
 
-//  TODO 测试线程池+消息队列。CThreadPool.h线程池有bug，暂时不测试。更换为ThreadPool.h
+//  测试线程池+消息队列。
 #include "ThreadPool.h"
 void testMsgOrder()
 {
@@ -169,7 +163,7 @@ int main()
     // tester.addTest(test_msg_queue, "test_msg_queue");
     // tester.addTest(test_thread_pool, "test_thread_pool");
     // tester.addTest(test_async_queue, "test_async_queue");
-    // tester.addTest(test_thread_pool_msg_queue, "test_thread_pool_msg_queue");
-    tester.addTest(testMsgOrder, "testMsgOrder");
+    tester.addTest(test_thread_pool_msg_queue, "test_thread_pool_msg_queue");
+    // tester.addTest(testMsgOrder, "testMsgOrder");
     tester.runTests();
 }
