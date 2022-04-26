@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10.0)
 project(wzq_thread)
 
 set (CMAKE_CXX_FLAGS "--std=c++17")
-
+include_directories(${PROJECT_SOURCE_DIR}/include)
 add_library(wzq_thread src/count_down_latch.cc)
 target_link_libraries(wzq_thread pthread)
 
