@@ -21,13 +21,12 @@ void testThreadpool1()
     TEST_EQUALS(res, 42);
 }
 
-/////// 测试普通函数 ///////
 void func2()
 {
     std::this_thread::sleep_for(std::chrono::seconds(1));
     std::cout << std::this_thread::get_id() << std::endl;
 }
-
+/////// 测试普通函数 ///////
 void testTHreadpool2()
 {
     CThreadPool pool;

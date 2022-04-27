@@ -107,22 +107,6 @@ void test_async_queue()
     TEST_EQUALS(ret2.get(), true);
 }
 
-//////测试线程池+消息队列//////
-void test_thread_pool_msg_queue()
-{
-    CThreadPool pool;
-    pool.Start(2);
-    CMsgQueue<std::string, int, int> mq;
-
-    pool.Commit([&mq]
-                {std::string val;
-                int num1, num2;
-                auto res = mq.Pop(val, num1, num2);
-                std::cout << val << "   " << num1 << "  " << num2 << std::endl; });
-    pool.Commit([&mq]
-                { mq.Push("test2", 100, 200); });
-}
-
 //  测试线程池+消息队列。
 #include "ThreadPool.h"
 void testMsgOrder()
@@ -143,13 +127,11 @@ void testMsgOrder()
                  {std::string val;
                 int num1, num2;
                 std::cout<< this_thread::get_id() << std::endl; 
-                std::cout << pool.idlCount() << pool.thrCount() << std::endl;
+                std::cout << pool.idlCount() << "vs"<< pool.thrCount() << std::endl;
 
                 for (int i = 0; i < count; i++)
                 {
                     auto res = mq.Pop(val, num1, num2);
-                    //TODO：count太大，内存溢出
-                    // std::cout << val << "-" << num1 << "-" << num2 << std::endl;
                     TEST_EQUALS(val, std::string("test"));
                     TEST_EQUALS(num1, i);
                     TEST_EQUALS(num2, i);
@@ -163,7 +145,6 @@ int main()
     // tester.addTest(test_msg_queue, "test_msg_queue");
     // tester.addTest(test_thread_pool, "test_thread_pool");
     // tester.addTest(test_async_queue, "test_async_queue");
-    tester.addTest(test_thread_pool_msg_queue, "test_thread_pool_msg_queue");
-    // tester.addTest(testMsgOrder, "testMsgOrder");
+    tester.addTest(testMsgOrder, "testMsgOrder");
     tester.runTests();
 }
