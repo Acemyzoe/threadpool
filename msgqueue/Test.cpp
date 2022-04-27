@@ -205,6 +205,7 @@ void testRequestResponse()
     pool.enqueue(responder, N, std::ref(queue));
 }
 
+// Test request-response scenario with timeout
 void testRequestExpired()
 {
     Queue queue;
